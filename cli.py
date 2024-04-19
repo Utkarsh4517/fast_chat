@@ -4,7 +4,6 @@ import asyncio
 
 BASE_URL = "http://localhost:8000"
 
-# Function to create a new user
 def create_user(username, password):
     url = f"{BASE_URL}/users/"
     payload = {
@@ -13,13 +12,13 @@ def create_user(username, password):
     }
     response = requests.post(url, json=payload)
     if response.status_code == 200:
-        res = response.json()
-        print("User created successfully.")
-        print(res['user_id'])
+        data = response.json()
+        print(f"User created successfully. User ID: {data['user_id']}")
+        return data['user_id']
     else:
-        print(f"Error: {response.json().get('error')}")
+        print(f"Error: {response.json().get('detail', 'Unknown error')}")
+        return None
 
-# Function to create a new room
 def create_room(name, creator_id):
     url = f"{BASE_URL}/rooms/"
     payload = {
@@ -28,13 +27,12 @@ def create_room(name, creator_id):
     }
     response = requests.post(url, json=payload)
     if response.status_code == 200:
-        room_id = response.json().get("room_id")
-        print(f"Room created successfully. Room ID: {room_id}")
-        return room_id
+        data = response.json()
+        print(f"Room created successfully. Room ID: {data['room_id']}")
+        return data['room_id']
     else:
         print(f"Error: {response.json().get('error')}")
 
-# Function to get room details
 def get_room_details(room_id):
     url = f"{BASE_URL}/rooms/{room_id}"
     response = requests.get(url)
@@ -46,19 +44,16 @@ def get_room_details(room_id):
     else:
         print(f"Error: {response.json().get('error')}")
 
-# Function to join a room and start chat
 async def join_room(username, room_id):
     websocket_url = f"ws://localhost:8000/rooms/{room_id}"
     async with websockets.connect(websocket_url) as websocket:
         print(f"Joined room {room_id}. You can start chatting now.")
-        # Start a task to listen for incoming messages
-        asyncio.create_task(listen_for_messages(websocket, username))
+        asyncio.create_task(listen_for_messages(websocket))
         while True:
             message = input(f"{username}: ")
-            await websocket.send(message)
+            await websocket.send(f"{username}: {message}")
 
-# Function to listen for incoming messages
-async def listen_for_messages(websocket, username):
+async def listen_for_messages(websocket):
     async for message in websocket:
         print(message)
 
@@ -67,9 +62,9 @@ if __name__ == "__main__":
     print("1. Create a new user")
     print("2. Create a new room")
     print("3. Get room details")
-    print("4. Join a room and chat")
-
-    choice = input("Enter your choice (1-4): ")
+    print("4. Join a room and start chatting")
+    
+    choice = input("Enter your choice: ")
 
     if choice == "1":
         username = input("Enter username: ")
