@@ -2,8 +2,12 @@ import requests
 import websockets
 import asyncio
 
+# Cli for interacting with fast api app
+
 BASE_URL = "http://localhost:8000"
 
+
+# Creates a new user on db
 def create_user(username, password):
     url = f"{BASE_URL}/users/"
     payload = {
@@ -19,6 +23,7 @@ def create_user(username, password):
         print(f"Error: {response.json().get('detail', 'Unknown error')}")
         return None
 
+# Any user can create a new room, it requires a  room_name and the user_id or creator_id
 def create_room(name, creator_id):
     url = f"{BASE_URL}/rooms/"
     payload = {
@@ -33,6 +38,8 @@ def create_room(name, creator_id):
     else:
         print(f"Error: {response.json().get('error')}")
 
+
+# Returns the details of any room present on db
 def get_room_details(room_id):
     url = f"{BASE_URL}/rooms/{room_id}"
     response = requests.get(url)
@@ -44,6 +51,8 @@ def get_room_details(room_id):
     else:
         print(f"Error: {response.json().get('error')}")
 
+
+# Ws : Room
 async def join_room(username, room_id):
     websocket_url = f"ws://localhost:8000/rooms/{room_id}"
     async with websockets.connect(websocket_url) as websocket:
