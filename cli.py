@@ -1,13 +1,13 @@
+import argparse
+import asyncio
 import requests
 import websockets
-import asyncio
 
-# Cli for interacting with fast api app
+# CLI for interacting with the FastAPI app
 
 BASE_URL = "http://localhost:8000"
 
-
-# Creates a new user on db
+# Creates a new user on the database
 def create_user(username, password):
     url = f"{BASE_URL}/users/"
     payload = {
@@ -23,7 +23,7 @@ def create_user(username, password):
         print(f"Error: {response.json().get('detail', 'Unknown error')}")
         return None
 
-# Any user can create a new room, it requires a  room_name and the user_id or creator_id
+# Any user can create a new room, it requires a room name and the user ID or creator ID
 def create_room(name, creator_id):
     url = f"{BASE_URL}/rooms/"
     payload = {
@@ -38,8 +38,7 @@ def create_room(name, creator_id):
     else:
         print(f"Error: {response.json().get('error')}")
 
-
-# Returns the details of any room present on db
+# Returns the details of any room present in the database
 def get_room_details(room_id):
     url = f"{BASE_URL}/rooms/{room_id}"
     response = requests.get(url)
@@ -51,8 +50,7 @@ def get_room_details(room_id):
     else:
         print(f"Error: {response.json().get('error')}")
 
-
-# Ws : Room
+# WebSocket: Room
 async def join_room(username, room_id):
     websocket_url = f"ws://localhost:8000/rooms/{room_id}"
     async with websockets.connect(websocket_url) as websocket:
@@ -67,28 +65,24 @@ async def listen_for_messages(websocket):
         print(message)
 
 if __name__ == "__main__":
-    print("Choose an option:")
-    print("1. Create a new user")
-    print("2. Create a new room")
-    print("3. Get room details")
-    print("4. Join a room and start chatting")
-    
-    choice = input("Enter your choice: ")
+    parser = argparse.ArgumentParser(description='CLI Chat Tool')
+    parser.add_argument('action', choices=['create_user', 'create_room', 'get_room_details', 'join_room'],
+                        help='Action to perform')
+    args = parser.parse_args()
 
-    if choice == "1":
+    if args.action == "create_user":
         username = input("Enter username: ")
         password = input("Enter password: ")
         create_user(username, password)
-    elif choice == "2":
+    elif args.action == "create_room":
         name = input("Enter room name: ")
         creator_id = int(input("Enter creator ID: "))
         create_room(name, creator_id)
-    elif choice == "3":
+    elif args.action == "get_room_details":
         room_id = int(input("Enter room ID: "))
         get_room_details(room_id)
-    elif choice == "4":
+    elif args.action == "join_room":
         username = input("Enter username: ")
         room_id = int(input("Enter room ID: "))
         asyncio.run(join_room(username, room_id))
-    else:
-        print("Invalid choice.")
+
