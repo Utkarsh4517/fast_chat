@@ -115,3 +115,6 @@ Follow the prompts to enter your username and the room ID.
 
 The project uses SQLite as the database. The database file is named `chat.db` and contains tables for storing users, rooms, and messages.
 
+## License
+
+This project is licensed under the [MIT License](LICENSE).
