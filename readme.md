@@ -1,1 +1,0 @@
-Check websocket connection on postman,  using ws protocol.
